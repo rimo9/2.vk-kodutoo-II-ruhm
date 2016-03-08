@@ -1,43 +1,39 @@
 (function(){
   "use strict";
 
-  var Treening = function(){
+  var Raamat = function(){
     // SINGLETON PATTERN (4 rida)
-    if(Treening.instance){
-      return Treening.instance;
+    if(Raamat.instance){
+      return Raamat.instance;
     }
-    Treening.instance = this; //this viitab moosipurgile
+    Raamat.instance = this; //this viitab raamatule
 
-    this.routes = Treening.routes;
+    this.routes = Raamat.routes;
 
     //console.log(this);
 
     //Kõik muutujad, mis on üldised ja muudetavad
     this.currentRoute = null; // hoiab meeles mis lehel hetkel on
-    this.interval = null;
-    this.jars = []; //kõik purgid tulevad siia sisse
+    this.books = []; //kõik tulevad siia sisse
+
+    this.book_id = 0;
 
     //panen rakenduse tööle
     this.init();
   };
 
+  //window.Raamat = Raamat;
+
   //kirjeldatud kõik lehed
-  Treening.routes = {
+  Raamat.routes = {
     "home-view" : {
       render: function(){
-        // käivitan siis kui jõuan lehele
-        console.log('JS avalehel');
-        if(this.interval){clearInterval(this.interval);}
-        var seconds = 0;
-        this.interval = window.setInterval(function(){
-          seconds++;
-          document.querySelector('#counter').innerHTML = seconds;
-        }, 1000);
+        //console.log('JS avalehel');
       }
     },
     "list-view" : {
       render: function(){
-        console.log('JS loend lehel');
+      //console.log('JS loend lehel');
       }
     },
     "manage-view" : {
@@ -48,7 +44,7 @@
   };
 
   //kõik funktsioonid siia sisse
-  Treening.prototype = {
+  Raamat.prototype = {
     init: function(){
       //console.log('rakendus käivitus');
       //Esialgne loogika tuleb siia
@@ -62,31 +58,49 @@
         this.routeChange();
       }
       //saan kätte purgid localStorage kui on
-      if(localStorage.jars){
+      if(localStorage.books){
         //string tagasi objektiks
-        this.jars = JSON.parse(localStorage.jars);
+        this.books = JSON.parse(localStorage.books);
         //tekitan loendi htmli
-        this.jars.forEach(function(jar){
-            var new_jar = new Jar(jar.BookAuthor, jar.BookName, jar.timeAdded);
-            var li = new_jar.createHtmlElement();
-            document.querySelector('.list-of-jars').appendChild(li);
+        this.books.forEach(function(book){
+            var new_book = new Book(book.id, book.BookAuthor, book.BookName, book.timeAdded);
+            Raamat.instance.book_id = book.id;
+            var li = new_book.createHtmlElement();
+            document.querySelector('.list-of-books').appendChild(li);
         });
+        this.jar_id++;
       }
 
       //hakka kuulama hiireklõpse
       this.bindEvents();
     },
     bindEvents: function(){
-      document.querySelector('.add-new-jar').addEventListener('click', this.addNewClick.bind(this));
+      document.querySelector('.add-new-book').addEventListener('click', this.addNewClick.bind(this));
       //kuulan trükkimist otsi kastist
       document.querySelector('#search').addEventListener('keyup', this.search.bind(this));
+    },
+    delete: function(event){
+  		console.log(event.target.parentNode);
+		  console.log(event.target.dataset.id);
+
+      var conf = confirm('Are you sure?');
+      if(!conf){return;}
+      var clicked_li = event.target.parentNode;
+      document.querySelector('.list-of-books').removeChild(clicked_li);
+
+      this.books.forEach(function(book, i){
+        if(book.id == event.target.dataset.id){
+          Raamat.instance.books.splice(i,1);
+        }
+      });
+      localStorage.setItem('books', JSON.stringify(this.books));
     },
     search: function(event){
       var kokku=0;
       //otsikasti väärtus
       var needle = document.querySelector('#search').value.toLowerCase();
       //console.log(needle);
-      var list = document.querySelectorAll('ul.list-of-jars li');
+      var list = document.querySelectorAll('ul.list-of-books li');
       //console.log(list);
       for(var i=0; i<list.length; i++){
         var li = list[i];
@@ -110,6 +124,7 @@
       var BookAuthor = this.trimWord(document.querySelector('.BookAuthor').value);
       var BookName = this.trimWord(document.querySelector('.BookName').value);
 	    var timeAdded = this.writeDate();
+
       //console.log(BookAuthor+' '+BookName+' Lisatud: '+timeAdded);
 	    var className = document.getElementById("show-feedback").className;
       //lisan masiivi purgid
@@ -125,13 +140,14 @@
           document.querySelector('.feedback-error').className=document.querySelector('.feedback-error').className.replace('feedback-error','feedback-success');
         }
         document.querySelector('#show-feedback').innerHTML='Salvestamine õnnestus';
-  		  var new_jar = new Jar(BookAuthor, BookName, timeAdded);
+  		  var new_book = new Book(this.book_id, BookAuthor, BookName, timeAdded);
+        this.book_id++;
         //lisan massiivi moosipurgi
-        this.jars.push(new_jar);
-        console.log(JSON.stringify(this.jars));
+        this.books.push(new_book);
+        //console.log(JSON.stringify(this.books));
         //JSON'i stringina salvestan local storagisse
-        localStorage.setItem('jars', JSON.stringify(this.jars));
-        document.querySelector('.list-of-jars').appendChild(new_jar.createHtmlElement());
+        localStorage.setItem('books', JSON.stringify(this.books));
+        document.querySelector('.list-of-books').appendChild(new_book.createHtmlElement());
       }
     },
     routeChange: function(event){
@@ -145,7 +161,7 @@
         this.routes[this.currentRoute].render();
       }else{
         //404? ei ole
-        console.log('404');
+        //console.log('404');
         window.location.hash = 'home-view';
       }
     },
@@ -182,16 +198,17 @@
 }
   };
 
-  var Jar = function(BookAuthor, new_BookName, timeAdded){
+  var Book = function(new_id, BookAuthor, new_BookName, timeAdded){
+    this.id = new_id;
     this.BookAuthor = BookAuthor;
     this.BookName = new_BookName;
-	this.timeAdded = timeAdded;
+	  this.timeAdded = timeAdded;
   };
-  Jar.prototype = {
+  Book.prototype = {
     createHtmlElement: function(){
+
       //anna tagasi ilus html
       var li = document.createElement('li');
-
       var span = document.createElement('span');
       span.className = 'letter';
       var letter = document.createTextNode(this.BookAuthor.charAt(0));
@@ -200,9 +217,16 @@
 
       var content_span = document.createElement('span');
       content_span.className = 'content';
-      var content = document.createTextNode(this.BookAuthor+' | '+this.BookName+' Lisatud: '+this.timeAdded);
+      var content = document.createTextNode(this.BookAuthor+' | '+this.BookName+' Lisatud: '+this.timeAdded+' ');
       content_span.appendChild(content);
       li.appendChild(content_span);
+
+      var delete_span = document.createElement('button');
+      delete_span.appendChild(document.createTextNode('Kustuta'));
+
+      delete_span.setAttribute('data-id', this.id);
+      delete_span.addEventListener('click', Raamat.instance.delete.bind(Raamat.instance));
+      li.appendChild(delete_span);
 
       //console.log(li);
       return li;
@@ -210,7 +234,7 @@
   };
 
   window.onload = function(){
-    var app = new Treening();
+    var app = new Raamat();
   };
 
 })();
