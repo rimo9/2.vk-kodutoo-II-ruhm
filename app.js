@@ -1,17 +1,16 @@
 (function(){
   "use strict";
 
-  var Moosipurk = function(){
+  var Treening = function(){
     // SINGLETON PATTERN (4 rida)
-    if(Moosipurk.instance){
-      return Moosipurk.instance;
+    if(Treening.instance){
+      return Treening.instance;
     }
-    Moosipurk.instance = this; //this viitab moosipurgile
+    Treening.instance = this; //this viitab moosipurgile
 
-    this.routes = Moosipurk.routes;
+    this.routes = Treening.routes;
 
     //console.log(this);
-    //console.log('moosipurgi sees');
 
     //Kõik muutujad, mis on üldised ja muudetavad
     this.currentRoute = null; // hoiab meeles mis lehel hetkel on
@@ -23,7 +22,7 @@
   };
 
   //kirjeldatud kõik lehed
-  Moosipurk.routes = {
+  Treening.routes = {
     "home-view" : {
       render: function(){
         // käivitan siis kui jõuan lehele
@@ -48,8 +47,8 @@
     }
   };
 
-  //kõik moosipurgi funktsioonid siia sisse
-  Moosipurk.prototype = {
+  //kõik funktsioonid siia sisse
+  Treening.prototype = {
     init: function(){
       //console.log('rakendus käivitus');
       //Esialgne loogika tuleb siia
@@ -68,7 +67,7 @@
         this.jars = JSON.parse(localStorage.jars);
         //tekitan loendi htmli
         this.jars.forEach(function(jar){
-            var new_jar = new Jar(jar.title, jar.ingredients, jar.timeAdded);
+            var new_jar = new Jar(jar.BookAuthor, jar.BookName, jar.timeAdded);
             var li = new_jar.createHtmlElement();
             document.querySelector('.list-of-jars').appendChild(li);
         });
@@ -108,15 +107,15 @@
     },
     addNewClick: function(event){
       //lisa uus purk
-      var title = this.trimWord(document.querySelector('.title').value);
-      var ingredients = this.trimWord(document.querySelector('.ingredients').value);
+      var BookAuthor = this.trimWord(document.querySelector('.BookAuthor').value);
+      var BookName = this.trimWord(document.querySelector('.BookName').value);
 	    var timeAdded = this.writeDate();
-      //console.log(title+' '+ingredients+' Lisatud: '+timeAdded);
+      //console.log(BookAuthor+' '+BookName+' Lisatud: '+timeAdded);
 	    var className = document.getElementById("show-feedback").className;
       //lisan masiivi purgid
 
 
-      if(title === '' || ingredients === ''){
+      if(BookAuthor === '' || BookName === ''){
   		    if(className == "feedback-success"){
   		        document.querySelector('.feedback-success').className=document.querySelector('.feedback-success').className.replace('feedback-success','feedback-error');
   		    }
@@ -126,7 +125,7 @@
           document.querySelector('.feedback-error').className=document.querySelector('.feedback-error').className.replace('feedback-error','feedback-success');
         }
         document.querySelector('#show-feedback').innerHTML='Salvestamine õnnestus';
-  		  var new_jar = new Jar(title, ingredients, timeAdded);
+  		  var new_jar = new Jar(BookAuthor, BookName, timeAdded);
         //lisan massiivi moosipurgi
         this.jars.push(new_jar);
         console.log(JSON.stringify(this.jars));
@@ -183,9 +182,9 @@
 }
   };
 
-  var Jar = function(title, new_ingredients, timeAdded){
-    this.title = title;
-    this.ingredients = new_ingredients;
+  var Jar = function(BookAuthor, new_BookName, timeAdded){
+    this.BookAuthor = BookAuthor;
+    this.BookName = new_BookName;
 	this.timeAdded = timeAdded;
   };
   Jar.prototype = {
@@ -195,13 +194,13 @@
 
       var span = document.createElement('span');
       span.className = 'letter';
-      var letter = document.createTextNode(this.title.charAt(0));
+      var letter = document.createTextNode(this.BookAuthor.charAt(0));
       span.appendChild(letter);
       li.appendChild(span);
 
       var content_span = document.createElement('span');
       content_span.className = 'content';
-      var content = document.createTextNode(this.title+' | '+this.ingredients+' Kuupäev: '+this.timeAdded);
+      var content = document.createTextNode(this.BookAuthor+' | '+this.BookName+' Lisatud: '+this.timeAdded);
       content_span.appendChild(content);
       li.appendChild(content_span);
 
@@ -211,7 +210,7 @@
   };
 
   window.onload = function(){
-    var app = new Moosipurk();
+    var app = new Treening();
   };
 
 })();
