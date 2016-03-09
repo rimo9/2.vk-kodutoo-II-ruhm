@@ -16,8 +16,6 @@
     this.currentRoute = null; // hoiab meeles mis lehel hetkel on
     this.books = []; //kõik tulevad siia sisse
 
-    this.book_id = 0;
-
     //panen rakenduse tööle
     this.init();
   };
@@ -64,11 +62,9 @@
         //tekitan loendi htmli
         this.books.forEach(function(book){
             var new_book = new Book(book.id, book.BookAuthor, book.BookName, book.timeAdded);
-            Raamat.instance.book_id = book.id;
             var li = new_book.createHtmlElement();
             document.querySelector('.list-of-books').appendChild(li);
         });
-        this.jar_id++;
       }
 
       //hakka kuulama hiireklõpse
@@ -80,19 +76,21 @@
       document.querySelector('#search').addEventListener('keyup', this.search.bind(this));
     },
     delete: function(event){
-  		console.log(event.target.parentNode);
-		  console.log(event.target.dataset.id);
 
       var conf = confirm('Are you sure?');
       if(!conf){return;}
-      var clicked_li = event.target.parentNode;
-      document.querySelector('.list-of-books').removeChild(clicked_li);
+      var ul = event.target.parentNode.parentNode;
+      var li = event.target.parentNode;
+      ul.removeChild(li);
 
-      this.books.forEach(function(book, i){
-        if(book.id == event.target.dataset.id){
-          Raamat.instance.books.splice(i,1);
+      for(var i=0; i<this.books.length; i++){
+        if(this.books[i].id == event.target.dataset.id){
+          //kustuta kohal i objekt ära
+          this.books.splice(i, 1);
+          //ei lähe edasi
+          break;
         }
-      });
+      }
       localStorage.setItem('books', JSON.stringify(this.books));
     },
     search: function(event){
@@ -140,8 +138,7 @@
           document.querySelector('.feedback-error').className=document.querySelector('.feedback-error').className.replace('feedback-error','feedback-success');
         }
         document.querySelector('#show-feedback').innerHTML='Salvestamine õnnestus';
-  		  var new_book = new Book(this.book_id, BookAuthor, BookName, timeAdded);
-        this.book_id++;
+  		  var new_book = new Book(guid(), BookAuthor, BookName, timeAdded);
         //lisan massiivi moosipurgi
         this.books.push(new_book);
         //console.log(JSON.stringify(this.books));
@@ -222,16 +219,30 @@
       li.appendChild(content_span);
 
       var delete_span = document.createElement('button');
-      delete_span.appendChild(document.createTextNode('Kustuta'));
-
       delete_span.setAttribute('data-id', this.id);
-      delete_span.addEventListener('click', Raamat.instance.delete.bind(Raamat.instance));
+      delete_span.innerHTML = "Kustuta";
       li.appendChild(delete_span);
+
+      delete_span.addEventListener('click', Raamat.instance.delete.bind(Raamat.instance));
 
       //console.log(li);
       return li;
     }
   };
+
+  //helper
+  function guid(){
+    var d = new Date().getTime();
+    if(window.performance && typeof window.performance.now === "function"){
+        d += performance.now(); //use high-precision timer if available
+    }
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+  }
 
   window.onload = function(){
     var app = new Raamat();
