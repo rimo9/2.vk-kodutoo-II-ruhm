@@ -5,6 +5,9 @@
   <title>Raamatu jälgija</title>
   <script src="app.js"></script>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 </head>
 <body>
   <nav class="menu">
@@ -15,12 +18,56 @@
     </ul>
   </nav>
   <main role="main">
+
     <div id="list-view">
       <h1>Loend</h1>
       <input type="search" placeholder="Enter keyword" id="search"><br>
       <ul class="list-of-books"></ul>
       <div class="kokku" id="kokku"></div>
+
+      <!-- Muutmine -->
+      <!-- Modal -->
+      <div class="modal fade" id="ModalEdit" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <button type="button" class="close"
+                       data-dismiss="modal">
+                           <span aria-hidden="true">&times;</span>
+                           <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">Muuda</h4>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+
+                    <form class="form-horizontal" role="form">
+                      <div class="form-group">
+                        <label  class="col-sm-2 control-label" for="EditBookAuthor">Raamatu autor</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="EditBookAuthor" class="EditBookAuthor" placeholder="Autori nimi">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label class="col-sm-2 control-label" for="EditBookName" >Raamatu nimi</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="EditBookName" class="EditBookName" placeholder="Raamatu nimi">
+                        </div>
+                      </div>
+
+                    <button id="edit_close" type="button" class="btn btn-default" data-dismiss="modal">Sulge</button>
+                    <button id="save" type="button" class="btn btn-primary btn pull-right" data-dismiss="modal">Salvesta</button>
+                </div>
+            </div>
+        </div>
+      </div>
+
+
     </div>
+
     <div id="manage-view">
       <h1>Haldus</h1>
       <div class="feedback-success" id="show-feedback"></div>

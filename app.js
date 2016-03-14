@@ -75,6 +75,32 @@
       //kuulan trükkimist otsi kastist
       document.querySelector('#search').addEventListener('keyup', this.search.bind(this));
     },
+    edit: function(event){
+      var selected_id = event.target.dataset.id;
+      var clicked_li = event.target.parentNode;
+      $("#ModalEdit").modal({backdrop: true});
+
+       $(document).on("click", "#edit_close", function(event){
+        return;
+      });
+
+       $(document).on("click", "#save", function(event){
+       console.log(clicked_li);
+       var BookAuthor = document.querySelector('.EditBookAuthor').value;
+       var BookName = document.querySelector('.EditBookName').value;
+       this.books = JSON.parse(localStorage.books);
+       clicked_li.parentNode.removeChild(clicked_li);
+       for(var i=0; i<this.books.length; i++){
+         if(this.books[i].id == selected_id){
+           this.books[i].BookAuthor = BookAuthor;
+           this.books[i].BookName = BookName;
+           break;
+         }
+       }
+       localStorage.setItem('books', JSON.stringify(this.books));
+       location.reload();
+      });
+    },
     delete: function(event){
 
       var conf = confirm('Are you sure?');
@@ -222,8 +248,13 @@
       delete_span.setAttribute('data-id', this.id);
       delete_span.innerHTML = "Kustuta";
       li.appendChild(delete_span);
-
       delete_span.addEventListener('click', Raamat.instance.delete.bind(Raamat.instance));
+
+      var edit_span = document.createElement('button');
+      edit_span.setAttribute('data-id', this.id);
+      edit_span.innerHTML = "Muuda";
+      li.appendChild(edit_span);
+      edit_span.addEventListener('click', Raamat.instance.edit.bind(Raamat.instance));
 
       //console.log(li);
       return li;
